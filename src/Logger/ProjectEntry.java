@@ -1,7 +1,7 @@
 package Logger;
 
 import javafx.beans.property.*;
-import sun.java2d.pipe.SpanShapeRenderer;
+
 
 /**
  * Created by jonah on 12/20/16.

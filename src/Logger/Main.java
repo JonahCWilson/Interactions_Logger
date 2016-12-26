@@ -4,6 +4,8 @@ import javafx.application.Application;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Orientation;
@@ -20,22 +22,25 @@ public class Main extends Application {
 
     Tab searchTab;
     Tab studentTab;
+    TabPane rootNode;
 
     TableView results;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         searchTab = getSearchTab();
-        TabPane rootNode = new TabPane(searchTab);
+        rootNode = new TabPane(searchTab);
         Scene scene = new Scene(rootNode, 600, 400);
         primaryStage.setScene(scene);
-        populate(results);
+        //populate(results);
 
         primaryStage.show();
 
     }
 
-    private void populate(TableView tableView){
+
+    /*
+    public void populate(TableView tableView){
         ObservableList<ProjectEntry> projEntries =
                 FXCollections.observableArrayList(
                         new ProjectEntry("Jonah", "myApp.audio", "Completed", 14028),
@@ -53,18 +58,22 @@ public class Main extends Application {
 
 
     }
+    */
+
     private Tab getSearchTab(){
         // Controls
         TextField searchBar;
         Button searchBtn;
         Button clearBtn;
+        Button addStudent;
+        Button selectStudent;
 
         // Layout Variables
         Tab output = new Tab();
         VBox vBox = new VBox(10);
         HBox hBox = new HBox(10);
-        HBox bottom = new HBox(10);
-        bottom.setAlignment(Pos.CENTER);
+        HBox middle = new HBox(10);
+        middle.setAlignment(Pos.CENTER);
 
         // Initialize and resize controls
         searchBar = new TextField("Enter Student's Last Name or ID Number");
@@ -81,10 +90,27 @@ public class Main extends Application {
         results = new TableView<>();
         results.setPrefHeight(300);
         results.setPrefWidth(550);
-        bottom.getChildren().add(results);
+        middle.getChildren().add(results);
+        vBox.getChildren().add(middle);
 
-        //results.setPadding(new Insets(10, 10, 10, 10));
-        vBox.getChildren().add(bottom);
+        // Add bottom buttons
+        ButtonBar bar = new ButtonBar();
+        bar.setPadding(new Insets(10, 20, 20, 10));
+        addStudent = new Button("Add Student");
+        selectStudent = new Button("Select Student");
+        bar.getButtons().addAll(addStudent, selectStudent);
+        bar.setButtonData(addStudent, ButtonBar.ButtonData.LEFT);
+        vBox.getChildren().add(bar);
+
+        addStudent.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                studentTab = new StudentTab();
+                rootNode.getTabs().add(studentTab);
+                rootNode.getSelectionModel().select(studentTab);
+
+            }
+        });
 
         // Set Tab content
         output.setContent(vBox);
@@ -97,7 +123,7 @@ public class Main extends Application {
 
     @Override
     public void init(){
-        DatabaseManager.start();
+        //DatabaseManager.start();
     }
 
 
