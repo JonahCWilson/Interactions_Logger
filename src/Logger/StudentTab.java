@@ -2,11 +2,16 @@ package Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import javax.swing.*;
 
@@ -18,50 +23,46 @@ public class StudentTab extends Tab{
     // Student fields
     private Label idLabel, firstLabel, lastLabel, gradeLabel, schoolLabel;
     private TextField studentID, firstName, lastName, gradeLevel;
-    private ComboBox<String> school;    
-
-    private VBox vBox;
+    private ComboBox<String> school;
+    private GridPane basePane;
 
     public StudentTab(){
         this.setText("Add Student");
-        // Overall Content VBox
-        vBox = new VBox(10);
 
-        // Student ID HBox
-        HBox sID = new HBox(10);
-        sID.setPadding(new Insets(20, 10, 20, 20));
-        sID.setAlignment(Pos.CENTER_LEFT);
+        // Initialize Gridpane and set Alignment
+        basePane = new GridPane();
+        basePane.setAlignment(Pos.TOP_CENTER);
+        basePane.setPadding(new Insets(10, 10, 10, 10));
+        basePane.setHgap(10);
+        basePane.setVgap(10);
+
+        // Add Student ID
         idLabel = new Label("Student ID:");
         studentID = new TextField("");
-        sID.getChildren().addAll(idLabel, studentID);
+        basePane.add(idLabel, 0, 0);
+        basePane.add(studentID, 1, 0);
 
-
-        // First and Last Name Hbox
-        HBox names = new HBox(10);
+        // Add First/Last Name
         firstLabel = new Label("First Name:");
-        lastLabel = new Label("Last Name:");
         firstName = new TextField("");
+        lastLabel = new Label("Last Name");
         lastName = new TextField("");
-        names.getChildren().addAll(firstLabel, firstName, lastLabel, lastName);
-        names.setAlignment(Pos.CENTER_LEFT);
-        names.setPadding(new Insets(0, 0, 0, 20));
+        basePane.add(firstLabel, 0, 1);
+        basePane.add(firstName, 1, 1);
+        basePane.add(lastLabel, 2, 1);
+        basePane.add(lastName, 3, 1);
 
-        // Grade Level and School Hbox
-        HBox gradeAndSchool = new HBox(10);
+        // Add Grade and School boxes
         gradeLabel = new Label("Grade Level:");
         gradeLevel = new TextField("");
         schoolLabel = new Label("School:");
         school = new ComboBox<>(getSchools());
-        gradeAndSchool.getChildren().addAll(gradeLabel, gradeLevel, schoolLabel, school);
-        gradeAndSchool.setAlignment(Pos.CENTER_LEFT);
-        gradeAndSchool.setPadding(new Insets(0, 0, 0, 20));
+        basePane.add(gradeLabel, 0, 2);
+        basePane.add(gradeLevel, 1, 2);
+        basePane.add(schoolLabel, 2, 2);
+        basePane.add(school, 3, 2);
 
-
-        // Add all to vBox
-
-        vBox.getChildren().addAll(sID, names, gradeAndSchool);
-
-        this.setContent(vBox);
+        this.setContent(basePane);
     }
 
     private ObservableList<String> getSchools(){
