@@ -18,6 +18,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+
 public class Main extends Application {
 
     Tab searchTab;
@@ -105,7 +107,7 @@ public class Main extends Application {
         addStudent.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                studentTab = new StudentTab();
+                studentTab = new StudentTab(new ArrayList<String>());
                 rootNode.getTabs().add(studentTab);
                 rootNode.getSelectionModel().select(studentTab);
 
