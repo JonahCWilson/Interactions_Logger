@@ -31,6 +31,9 @@ public class StudentTab extends Tab{
     private GridPane basePane;
     private Button saveButton, cancelButton;
 
+    // View and/or Edit Fields
+    private Label interactionsLabel;
+
     /**
      * Constructor for a general StudentTab. All fields are blank and editable.
      */
@@ -150,7 +153,7 @@ public class StudentTab extends Tab{
         basePane.add(school, 3, 2);
         gradeLevel.setDisable(true);
         school.setDisable(true);
-        
+
 
         //TODO
         /*
