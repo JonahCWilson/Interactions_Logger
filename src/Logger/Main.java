@@ -1,5 +1,6 @@
 package Logger;
 
+import com.sun.imageio.plugins.common.StandardMetadataFormat;
 import javafx.application.Application;
 
 import javafx.collections.FXCollections;
@@ -18,6 +19,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import javax.xml.crypto.Data;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class Main extends Application {
@@ -27,6 +30,7 @@ public class Main extends Application {
     TabPane rootNode;
 
     TableView results;
+
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -41,26 +45,35 @@ public class Main extends Application {
     }
 
 
-    /*
-    public void populate(TableView tableView){
-        ObservableList<ProjectEntry> projEntries =
-                FXCollections.observableArrayList(
-                        new ProjectEntry("Jonah", "myApp.audio", "Completed", 14028),
-                        new ProjectEntry("Alex", "beats.android", "In Progress", 20000)
-                );
 
-        tableView.setItems(projEntries);
-        TableColumn<ProjectEntry, String> progName = new TableColumn<>("Programmer");
-        progName.setCellValueFactory(new PropertyValueFactory<>("programmer"));
-        tableView.getColumns().add(progName);
+    public void populate(TableView tableView, ResultSet rs){
+        try {
+            ObservableList<StudentEntry> projEntries = FXCollections.observableArrayList();
 
-        TableColumn<ProjectEntry, String> pName = new TableColumn<>("Project Name");
-        pName.setCellValueFactory(new PropertyValueFactory<ProjectEntry, String>("packageName"));
-        tableView.getColumns().add(pName);
+            while(rs.next()){
+                for(int i = 0; i < rs.getMetaData().getColumnCount(); i++){
+                    projEntries.add(new StudentEntry(rs.getString("ID"),
+                            rs.getString("FIRST_NAME"), rs.getString("LAST_NAME"),
+                            rs.getInt("GRADE")));
+                }
+            }
+
+
+            tableView.setItems(projEntries);
+            TableColumn<StudentEntry, String> progName = new TableColumn<>("Programmer");
+            progName.setCellValueFactory(new PropertyValueFactory<>("programmer"));
+            tableView.getColumns().add(progName);
+
+            TableColumn<StudentEntry, String> pName = new TableColumn<>("Project Name");
+            pName.setCellValueFactory(new PropertyValueFactory<StudentEntry, String>("packageName"));
+            tableView.getColumns().add(pName);
+        }catch(Exception e){
+
+        }
 
 
     }
-    */
+
 
     private Tab getSearchTab(){
         // Controls
@@ -82,6 +95,16 @@ public class Main extends Application {
         searchBar.setPrefWidth(300);
         searchBtn = new Button("Search");
         clearBtn = new Button("Clear");
+
+        // Add handler for search
+        searchBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                String query = searchBar.getText();
+                ResultSet rs = DatabaseManager.searchStudentByNameOrID(query);
+                populate(results, rs);
+            }
+        });
 
         // Add controls to Hbox
         hBox.getChildren().addAll(searchBar, searchBtn, clearBtn);
@@ -107,7 +130,7 @@ public class Main extends Application {
         addStudent.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                studentTab = new StudentTab(new ArrayList<String>());
+                studentTab = new StudentTab(rootNode);
                 rootNode.getTabs().add(studentTab);
                 rootNode.getSelectionModel().select(studentTab);
 
@@ -125,7 +148,7 @@ public class Main extends Application {
 
     @Override
     public void init(){
-        //DatabaseManager.start();
+        DatabaseManager.createDatabase();
     }
 
 
