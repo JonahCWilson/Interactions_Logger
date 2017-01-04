@@ -7,6 +7,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -26,15 +27,14 @@ import java.util.ArrayList;
  */
 public class StudentTab extends Tab{
 
-    // Student fields
-    private Label idLabel, firstLabel, lastLabel, gradeLabel, schoolLabel,
-                 notesLabel;
-    private TextField studentID, firstName, lastName;
-    private TextArea notes;
-    private final ComboBox<String> school;
-    private final ComboBox<Integer> gradeLevel;
-    private GridPane basePane;
-    private Button saveButton, cancelButton;
+    // Student Fields
+    public Label idLabel, firstLabel, lastLabel, gradeLabel, schoolLabel, notesLabel;
+    public TextField studentID, firstName, lastName;
+    //public TextArea notes;
+    public ComboBox<String> school;
+    public ComboBox<Integer> gradeLevel;
+    public GridPane basePane;
+    //private Button saveButton, cancelButton;
 
     // View and/or Edit Fields
     private Label interactionsLabel;
@@ -42,9 +42,46 @@ public class StudentTab extends Tab{
     // Parent node in order to close tab
     private TabPane rootNode;
 
+    public StudentTab(){
+        // Initialize GridPane
+        basePane = new GridPane();
+        basePane.setAlignment(Pos.TOP_CENTER);
+        basePane.setPadding(new Insets(10));
+        basePane.setHgap(10);
+        basePane.setVgap(10);
+
+        // Add Student ID
+        idLabel = new Label("Student ID:");
+        studentID = new TextField("");
+        basePane.add(idLabel, 0, 0);
+        basePane.add(studentID, 1, 0);
+
+        // Add First/Last Name
+        firstLabel = new Label("First Name:");
+        firstName = new TextField("");
+        lastLabel = new Label("Last Name");
+        lastName = new TextField("");
+        basePane.add(firstLabel, 0, 1);
+        basePane.add(firstName, 1, 1);
+        basePane.add(lastLabel, 2, 1);
+        basePane.add(lastName, 3, 1);
+
+        // Add Grade and School boxes
+        gradeLabel = new Label("Grade Level:");
+        gradeLevel = new ComboBox<>(getGradeBox());
+        schoolLabel = new Label("School:");
+        school = new ComboBox<>(getSchools());
+        basePane.add(gradeLabel, 0, 2);
+        basePane.add(gradeLevel, 1, 2);
+        basePane.add(schoolLabel, 2, 2);
+        basePane.add(school, 3, 2);
+
+    }
+
     /**
      * Constructor for a general StudentTab. All fields are blank and editable.
      */
+    /*
     public StudentTab(TabPane rootNode){
         this.rootNode = rootNode;
         this.setText("Add Student");
@@ -85,16 +122,17 @@ public class StudentTab extends Tab{
 
         // Add Notes field
         notesLabel = new Label("Notes: (This field can remain blank)");
-        notes = new TextArea();
+        //notes = new TextArea();
         basePane.add(notesLabel, 0, 3);
-        basePane.add(notes, 0, 4);
+        //basePane.add(notes, 0, 4);
         GridPane.setColumnSpan(notesLabel, 3);
+       /*
         GridPane.setColumnSpan(notes, 4);
         GridPane.setRowSpan(notes, 2);
 
         // Add Save/Cancel Buttons
-        saveButton = new Button("Save");
-        cancelButton = new Button("Cancel");
+        //saveButton = new Button("Save");
+        //cancelButton = new Button("Cancel");
         basePane.add(saveButton, 2, 6);
         basePane.add(cancelButton, 3, 6);
         GridPane.setHalignment(saveButton, HPos.RIGHT);
@@ -129,11 +167,61 @@ public class StudentTab extends Tab{
         Once checked, it'll save to the DB, then change the current tab to the Enter Info tab.
 
         Cancel will close the tab.
-         */
+
 
         this.setContent(basePane);
     }
+    */
+/*
+    public StudentTab(TabPane rootNode){
+        this.rootNode = rootNode;
+        this.setText("View Student");
 
+        // Initialize Gridpane and set Alignment
+        basePane = new GridPane();
+        basePane.setAlignment(Pos.TOP_CENTER);
+        basePane.setPadding(new Insets(10));
+        basePane.setHgap(10);
+        basePane.setVgap(10);
+
+        // Add Student ID
+        idLabel = new Label("Student ID:");
+        studentID = new TextField(entry.getId());
+        basePane.add(idLabel, 0, 0);
+        basePane.add(studentID, 1, 0);
+
+        // Add First/Last Name
+        firstLabel = new Label("First Name:");
+        firstName = new TextField(entry.getFirstName());
+        lastLabel = new Label("Last Name");
+        lastName = new TextField(entry.getLastName());
+        basePane.add(firstLabel, 0, 1);
+        basePane.add(firstName, 1, 1);
+        basePane.add(lastLabel, 2, 1);
+        basePane.add(lastName, 3, 1);
+
+        // Add Grade and School boxes
+        gradeLabel = new Label("Grade Level:");
+        gradeLevel = new ComboBox<>(getGradeBox());
+        gradeLevel.setValue(entry.getGrade());
+        schoolLabel = new Label("School:");
+        school = new ComboBox<>(getSchools());
+        school.setValue(entry.getSchool());
+        basePane.add(gradeLabel, 0, 2);
+        basePane.add(gradeLevel, 1, 2);
+        basePane.add(schoolLabel, 2, 2);
+        basePane.add(school, 3, 2);
+
+        // Set everything uneditable
+        studentID.setEditable(false);
+        firstName.setEditable(false);
+        lastName.setEditable(false);
+        gradeLevel.setEditable(false);
+        school.setEditable(false);
+
+        this.setContent(basePane);
+    }
+    */
     private void closeTab(){
         this.rootNode.getTabs().remove(this);
     }

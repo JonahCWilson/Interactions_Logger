@@ -38,7 +38,6 @@ public class Main extends Application {
         rootNode = new TabPane(searchTab);
         Scene scene = new Scene(rootNode, 600, 400);
         primaryStage.setScene(scene);
-        //populate(results);
 
         primaryStage.show();
 
@@ -46,18 +45,10 @@ public class Main extends Application {
 
 
 
-    public void populate(ResultSet rs){
+    public void populate(String query){
         try {
             results.getColumns().clear();
-            System.out.println(rs.getString("ID"));
-            while(rs.next()){
-                System.out.println("Poop");
-                for(int i = 0; i < rs.getMetaData().getColumnCount(); i++){
-                    studentEntries.add(new StudentEntry(rs.getString("ID"),
-                            rs.getString("FIRST_NAME"), rs.getString("LAST_NAME"),
-                            rs.getInt("GRADE"), rs.getString("SCHOOL")));
-                }
-            }
+            studentEntries = DatabaseManager.searchStudentByNameIDSchool(query.toLowerCase());
 
             TableColumn<StudentEntry, String> idColumn = new TableColumn<>("ID");
             TableColumn<StudentEntry, String> fNameColumn = new TableColumn<>("First Name");
@@ -70,18 +61,14 @@ public class Main extends Application {
             lNameColumn.setCellValueFactory(new PropertyValueFactory<StudentEntry, String>("lastName"));
             gradeColumn.setCellValueFactory(new PropertyValueFactory<StudentEntry, Integer>("grade"));
             schoolColumn.setCellValueFactory(new PropertyValueFactory<StudentEntry, String>("school"));
-            idColumn.setPrefWidth(110);
+            idColumn.setPrefWidth(100);
             fNameColumn.setPrefWidth(110);
             lNameColumn.setPrefWidth(110);
             gradeColumn.setPrefWidth(110);
             schoolColumn.setPrefWidth(110);
 
             results.getColumns().addAll(idColumn, fNameColumn, lNameColumn, gradeColumn, schoolColumn);
-
-
-
-
-
+            results.setItems(studentEntries);
         }catch(Exception e){
 
         }
@@ -114,8 +101,16 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
                 String query = searchBar.getText();
-                ResultSet rs = DatabaseManager.searchStudentByNameOrID(query);
-                populate(rs);
+                if(!query.equals(""))
+                    populate(query);
+            }
+        });
+
+        clearBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                searchBar.setText("");
+                results.getColumns().clear();
             }
         });
 
@@ -143,10 +138,22 @@ public class Main extends Application {
         addStudent.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                studentTab = new StudentTab(rootNode);
+                studentTab = new StudentTab();
                 rootNode.getTabs().add(studentTab);
                 rootNode.getSelectionModel().select(studentTab);
+            }
+        });
 
+        selectStudent.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    ViewTab tab = new ViewTab(results.getSelectionModel().getSelectedItem());
+                    rootNode.getTabs().add(tab);
+                    rootNode.getSelectionModel().select(tab);
+                }catch(NullPointerException e){
+                    // Do Nothing
+                }
             }
         });
 

@@ -1,4 +1,7 @@
 package Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 import java.util.ArrayList;
@@ -67,23 +70,38 @@ public class DatabaseManager
         }
     }
 
-    public static ResultSet searchStudentByNameOrID(String query){
+    public static ObservableList<StudentEntry> searchStudentByNameIDSchool(String query){
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
+        ObservableList<StudentEntry> output = FXCollections.observableArrayList();
         try{
             conn = DriverManager.getConnection(DB_URL);
             stmt = conn.createStatement();
-            String sql = "SELECT * FROM STUDENTS";
-                   // "WHERE LAST_NAME LIKE '" + query +
-                    //"' OR ID LIKE LOWER('" + query + "')";
+            String sql = "SELECT * FROM STUDENTS " +
+                    "WHERE LOWER(LAST_NAME) LIKE '" + query +
+                    "' OR LOWER(ID) LIKE '" + query + "'" +
+                    " OR SCHOOL LIKE '" + query + "'";
             rs = stmt.executeQuery(sql);
+            while(rs.next()){
+                output.add(new StudentEntry(
+                        rs.getString("ID"),
+                        rs.getString("FIRST_NAME"),
+                        rs.getString("LAST_NAME"),
+                        rs.getInt("GRADE"),
+                        rs.getString("SCHOOL")
+                ));
+            }
+            rs.close();
             stmt.close();
             conn.close();
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(SQLException se){
+            se.printStackTrace();
+        }catch(Exception e) {
+            //Do Nothing
         }
-        return rs;
+        return output;
+
     }
 
     public static ResultSet searchStudentByID(String id){
