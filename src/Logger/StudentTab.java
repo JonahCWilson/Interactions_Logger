@@ -17,6 +17,7 @@ import sun.util.locale.provider.HostLocaleProviderAdapter;
 import javax.swing.*;
 import javax.xml.crypto.Data;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -27,7 +28,7 @@ public class StudentTab extends Tab{
 
     // Student fields
     private Label idLabel, firstLabel, lastLabel, gradeLabel, schoolLabel,
-                interpLabel, addressLabel, notesLabel;
+                 notesLabel;
     private TextField studentID, firstName, lastName;
     private TextArea notes;
     private final ComboBox<String> school;
@@ -83,10 +84,11 @@ public class StudentTab extends Tab{
 
 
         // Add Notes field
-        notesLabel = new Label("Notes:");
+        notesLabel = new Label("Notes: (This field can remain blank)");
         notes = new TextArea();
         basePane.add(notesLabel, 0, 3);
         basePane.add(notes, 0, 4);
+        GridPane.setColumnSpan(notesLabel, 3);
         GridPane.setColumnSpan(notes, 4);
         GridPane.setRowSpan(notes, 2);
 
@@ -102,14 +104,22 @@ public class StudentTab extends Tab{
         saveButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if(verifyStudentData()) {
-                    DatabaseManager.addStudent(studentID.getText(),
-                            firstName.getText(), lastName.getText(),
-                            gradeLevel.getValue(), school.getValue());
-                    closeTab();
+                try {
+                    if (!containsNullValues()) {
+                        DatabaseManager.addStudent(studentID.getText(),
+                                firstName.getText(), lastName.getText(),
+                                gradeLevel.getValue(), school.getValue());
+                        displayErrorPopup(3);
+                        closeTab();
+                    }else{
+                        displayErrorPopup(2);
+                    }
+                }catch(SQLException e){
+                    displayErrorPopup(1);
                 }
             }
         });
+        cancelButton.setOnAction((eh) -> closeTab());
 
         //TODO
         /*
@@ -156,15 +166,6 @@ public class StudentTab extends Tab{
         return grades;
     }
 
-    private boolean verifyStudentData(){
-        if(containsNullValues()){
-            return displayErrorPopup(3);
-        }else if(userAlreadyInDB()){
-            return displayErrorPopup(2);
-        }
-      return true;
-    }
-
     private boolean containsNullValues(){
         return this.studentID.getText().equals("") ||
                 this.firstName.getText().equals("") ||
@@ -173,31 +174,21 @@ public class StudentTab extends Tab{
                 this.school.getValue() == null;
     }
 
-    private boolean userAlreadyInDB(){
-        try{
-            if(DatabaseManager.searchStudentByID(this.studentID.getText()).wasNull())
-                return true;
-        }catch(SQLException se){
-            System.err.println("Error in this method");
-        }
-        return false;
-    }
-
-    private boolean displayErrorPopup(int n){
+    private void displayErrorPopup(int n){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         switch(n){
             case 1:
-                alert.setContentText("Student ID Field is blank.");
-                break;
-            case 2:
                 alert.setContentText("Student with that ID already added to database.");
                 break;
-            case 3:
+            case 2:
                 alert.setContentText("Please make sure all fields have a value");
+                break;
+            case 3:
+                alert.setAlertType(Alert.AlertType.INFORMATION);
+                alert.setContentText("Student added successfully");
                 break;
         }
         alert.showAndWait();
-        return false;
     }
 
 

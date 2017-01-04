@@ -28,8 +28,8 @@ public class Main extends Application {
     Tab searchTab;
     Tab studentTab;
     TabPane rootNode;
-
-    TableView results;
+    TableView<StudentEntry> results;
+    ObservableList<StudentEntry> studentEntries = FXCollections.observableArrayList();
 
 
     @Override
@@ -46,32 +46,45 @@ public class Main extends Application {
 
 
 
-    public void populate(TableView tableView, ResultSet rs){
+    public void populate(ResultSet rs){
         try {
-            ObservableList<StudentEntry> projEntries = FXCollections.observableArrayList();
-
+            results.getColumns().clear();
+            System.out.println(rs.getString("ID"));
             while(rs.next()){
+                System.out.println("Poop");
                 for(int i = 0; i < rs.getMetaData().getColumnCount(); i++){
-                    projEntries.add(new StudentEntry(rs.getString("ID"),
+                    studentEntries.add(new StudentEntry(rs.getString("ID"),
                             rs.getString("FIRST_NAME"), rs.getString("LAST_NAME"),
-                            rs.getInt("GRADE")));
+                            rs.getInt("GRADE"), rs.getString("SCHOOL")));
                 }
             }
 
+            TableColumn<StudentEntry, String> idColumn = new TableColumn<>("ID");
+            TableColumn<StudentEntry, String> fNameColumn = new TableColumn<>("First Name");
+            TableColumn<StudentEntry, String> lNameColumn = new TableColumn<>("Last Name");
+            TableColumn<StudentEntry, Integer> gradeColumn = new TableColumn<>("Grade");
+            TableColumn<StudentEntry, String> schoolColumn = new TableColumn<>("School");
 
-            tableView.setItems(projEntries);
-            TableColumn<StudentEntry, String> progName = new TableColumn<>("Programmer");
-            progName.setCellValueFactory(new PropertyValueFactory<>("programmer"));
-            tableView.getColumns().add(progName);
+            idColumn.setCellValueFactory(new PropertyValueFactory<StudentEntry, String>("id"));
+            fNameColumn.setCellValueFactory(new PropertyValueFactory<StudentEntry, String>("firstName"));
+            lNameColumn.setCellValueFactory(new PropertyValueFactory<StudentEntry, String>("lastName"));
+            gradeColumn.setCellValueFactory(new PropertyValueFactory<StudentEntry, Integer>("grade"));
+            schoolColumn.setCellValueFactory(new PropertyValueFactory<StudentEntry, String>("school"));
+            idColumn.setPrefWidth(110);
+            fNameColumn.setPrefWidth(110);
+            lNameColumn.setPrefWidth(110);
+            gradeColumn.setPrefWidth(110);
+            schoolColumn.setPrefWidth(110);
 
-            TableColumn<StudentEntry, String> pName = new TableColumn<>("Project Name");
-            pName.setCellValueFactory(new PropertyValueFactory<StudentEntry, String>("packageName"));
-            tableView.getColumns().add(pName);
+            results.getColumns().addAll(idColumn, fNameColumn, lNameColumn, gradeColumn, schoolColumn);
+
+
+
+
+
         }catch(Exception e){
 
         }
-
-
     }
 
 
@@ -91,7 +104,7 @@ public class Main extends Application {
         middle.setAlignment(Pos.CENTER);
 
         // Initialize and resize controls
-        searchBar = new TextField("Enter Student's Last Name or ID Number");
+        searchBar = new TextField("");
         searchBar.setPrefWidth(300);
         searchBtn = new Button("Search");
         clearBtn = new Button("Clear");
@@ -102,7 +115,7 @@ public class Main extends Application {
             public void handle(ActionEvent event) {
                 String query = searchBar.getText();
                 ResultSet rs = DatabaseManager.searchStudentByNameOrID(query);
-                populate(results, rs);
+                populate(rs);
             }
         });
 
@@ -112,7 +125,7 @@ public class Main extends Application {
 
         // Add hBox to VBox
         vBox.getChildren().add(hBox);
-        results = new TableView<>();
+        results = new TableView<>(studentEntries);
         results.setPrefHeight(300);
         results.setPrefWidth(550);
         middle.getChildren().add(results);

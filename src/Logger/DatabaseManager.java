@@ -25,6 +25,16 @@ public class DatabaseManager
                          "GRADE     INTEGER    NOT NULL, " +
                          "SCHOOL    TEXT       NOT NULL) ";
             stmt.executeUpdate(sql);
+
+            sql = "CREATE TABLE IF NOT EXISTS NOTES " +
+                    "(ID TEXT PRIMARY KEY NOT NULL, " +
+                    "DATA TEXT)";
+            stmt.executeUpdate(sql);
+
+            sql = "CREATE TABLE IF NOT EXISTS INTERACTIONS " +
+                    "(ID TEXT NOT NULL," +
+                    "DATE TEXT, TYPE INT, DESCRIPTION TEXT)";
+            stmt.executeUpdate(sql);
             stmt.close();
             c.close();
 
@@ -40,19 +50,20 @@ public class DatabaseManager
 
     }
 
-    public static void addStudent(String id, String firstName, String lastName, int grade, String school){
+    public static void addStudent(String id, String firstName, String lastName, int grade, String school)
+        throws SQLException{
         try {
             Connection conn = DriverManager.getConnection(DB_URL);
             Statement stmt = conn.createStatement();
 
             String sql = "INSERT INTO STUDENTS VALUES " +
-                        "( '" + id + "', '" + firstName + "', '" +
+                        "( LOWER('" + id + "'), '" + firstName + "', '" +
                         lastName + "', " + grade + ", '" + school + "')";
             stmt.executeUpdate(sql);
             stmt.close();
             conn.close();
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(SQLException e){
+            throw e;
         }
     }
 
@@ -63,10 +74,9 @@ public class DatabaseManager
         try{
             conn = DriverManager.getConnection(DB_URL);
             stmt = conn.createStatement();
-            String sql = "SELECT * FROM STUDENTS " +
-                    "WHERE LAST_NAME LIKE '" + query +
-                    "' OR ID LIKE '" + query + "'";
-
+            String sql = "SELECT * FROM STUDENTS";
+                   // "WHERE LAST_NAME LIKE '" + query +
+                    //"' OR ID LIKE LOWER('" + query + "')";
             rs = stmt.executeQuery(sql);
             stmt.close();
             conn.close();
@@ -91,7 +101,20 @@ public class DatabaseManager
         }catch(SQLException se){
 
         }
-
         return rs;
+    }
+
+    public static boolean dbContainsStudent(String id){
+        ResultSet rs = searchStudentByID(id);
+        boolean output = false;
+        try{
+            if(rs.isBeforeFirst())
+                output = true;
+            else
+                return output;
+        }catch(SQLException se){
+            System.out.println("BLAAAAH");
+        }
+        return output;
     }
 }
