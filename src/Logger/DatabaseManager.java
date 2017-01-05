@@ -109,37 +109,44 @@ public class DatabaseManager
 
     }
 
-    public static ResultSet searchStudentByID(String id){
-        Connection conn = null;
-        Statement stmt = null;
-        ResultSet rs = null;
+    public static void addInteraction(String id, String description){
+        Connection conn;
+        Statement stmt;
         try{
             conn = DriverManager.getConnection(DB_URL);
             stmt = conn.createStatement();
-            String sql = "SELECT * FROM STUDENTS " +
-                    "WHERE ID LIKE '" + id + "'";
-            rs = stmt.executeQuery(sql);
+            String sql = "INSERT INTO INTERACTIONS VALUES " +
+                    "('" + id + "', date(), 2, '" + description + "')";
+            stmt.executeUpdate(sql);
+
             stmt.close();
             conn.close();
         }catch(SQLException se){
 
         }
-        return rs;
     }
 
-    public static boolean dbContainsStudent(String id){
-        ResultSet rs = searchStudentByID(id);
-        boolean output = false;
+    public static ObservableList<String> getInteractions(String id){
+        ObservableList<String> output = FXCollections.observableArrayList();
+        Connection conn;
+        Statement stmt;
+        ResultSet rs;
         try{
-            if(rs.isBeforeFirst())
-                output = true;
-            else
-                return output;
+            conn = DriverManager.getConnection(DB_URL);
+            stmt = conn.createStatement();
+            String sql = "SELECT * FROM INTERACTIONS WHERE ID LIKE '" + id + "'";
+            rs = stmt.executeQuery(sql);
+            while(rs.next()) {
+                output.add(rs.getString("DATE") + "-" + rs.getString("TYPE") +
+                        "-" + rs.getString("DESCRIPTION"));
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
         }catch(SQLException se){
-            System.out.println("BLAAAAH");
+
         }
         return output;
-    }
 
-    public static void addInteraction(String id, String description){}
+    }
 }

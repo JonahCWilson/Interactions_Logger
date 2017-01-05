@@ -33,7 +33,7 @@ public class StudentTab extends Tab{
     public TextField studentID, firstName, lastName, description;
     public ComboBox<String> school, types;
     public ComboBox<Integer> gradeLevel;
-    public ListView<String> interactions;
+    public ListView interactions;
     public GridPane basePane;
 
     private Button saveButton, cancelButton, addAction;
@@ -80,7 +80,7 @@ public class StudentTab extends Tab{
 
 
         // Initialize and place ListView
-        interactions = new ListView<>();
+        interactions = new ListView();
         basePane.add(interactions, 0, 3);
         GridPane.setColumnSpan(interactions,4);
 
@@ -153,9 +153,10 @@ public class StudentTab extends Tab{
         basePane.add(school, 3, 2);
 
         // Initialize and place ListView
-        interactions = new ListView<>();
+        interactions = new ListView();
         basePane.add(interactions, 0, 3);
         GridPane.setColumnSpan(interactions,4);
+
 
         // Initialize and place buttons
         addAction = new Button("Add Interaction");
@@ -187,10 +188,11 @@ public class StudentTab extends Tab{
             }
         });
 
+        StudentTab test = this;
         addAction.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Interaction i = new Interaction(entry.getId());
+                Interaction i = new Interaction(entry.getId(), test);
                 i.show();
             }
         });
@@ -257,6 +259,11 @@ public class StudentTab extends Tab{
                 break;
         }
         alert.showAndWait();
+    }
+
+    public void updateList(){
+        ObservableList<String> actions = DatabaseManager.getInteractions(this.studentID.getText());
+        interactions.setItems(actions);
     }
 
 

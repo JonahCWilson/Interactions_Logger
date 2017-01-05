@@ -1,13 +1,12 @@
 package Logger;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
@@ -22,7 +21,7 @@ public class Interaction extends Stage{
     private TextArea description;
     private Button add;
 
-    public Interaction(String sID){
+    public Interaction(String sID, StudentTab parent){
         // Initialize GridPane
         GridPane basePane = new GridPane();
         basePane.setAlignment(Pos.TOP_CENTER);
@@ -39,10 +38,20 @@ public class Interaction extends Stage{
         // Add Text Area and set size
         description = new TextArea();
         add = new Button("Finished");
+        description.setWrapText(true);
         basePane.add(description, 0, 1);
         GridPane.setColumnSpan(description, 2);
         basePane.add(add, 1, 2);
         GridPane.setHalignment(add, HPos.RIGHT);
+
+        add.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                DatabaseManager.addInteraction(sID, description.getText());
+                parent.updateList();
+
+            }
+        });
 
         scene = new Scene(basePane, 400, 250);
         this.setScene(scene);
