@@ -38,6 +38,11 @@ public class DatabaseManager
                     "(ID TEXT NOT NULL," +
                     "DATE TEXT, TYPE INT, DESCRIPTION TEXT)";
             stmt.executeUpdate(sql);
+
+            sql = "CREATE TABLE IF NOT EXISTS TYPES " +
+                    "(ID INT PRIMARY KEY NOT NULL, " +
+                    "DESCRIPTION TEXT)";
+            stmt.executeUpdate(sql);
             stmt.close();
             c.close();
 
@@ -135,4 +140,6 @@ public class DatabaseManager
         }
         return output;
     }
+
+    public static void addInteraction(String id, String description){}
 }

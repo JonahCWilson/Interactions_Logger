@@ -11,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import sun.util.locale.provider.HostLocaleProviderAdapter;
@@ -28,70 +29,28 @@ import java.util.ArrayList;
 public class StudentTab extends Tab{
 
     // Student Fields
-    public Label idLabel, firstLabel, lastLabel, gradeLabel, schoolLabel, notesLabel;
-    public TextField studentID, firstName, lastName;
-    //public TextArea notes;
-    public ComboBox<String> school;
+    public Label idLabel, firstLabel, lastLabel, gradeLabel, schoolLabel, typeLabel;
+    public TextField studentID, firstName, lastName, description;
+    public ComboBox<String> school, types;
     public ComboBox<Integer> gradeLevel;
+    public ListView<String> interactions;
     public GridPane basePane;
-    //private Button saveButton, cancelButton;
 
-    // View and/or Edit Fields
-    private Label interactionsLabel;
+    private Button saveButton, cancelButton, addAction;
 
-    // Parent node in order to close tab
-    private TabPane rootNode;
-
+    /**
+     * Constructor for General StudentTab.  All fields are blank and editable, save Interactions
+     */
     public StudentTab(){
+        // Set Title
+        this.setText("Add Student");
+
         // Initialize GridPane
         basePane = new GridPane();
         basePane.setAlignment(Pos.TOP_CENTER);
         basePane.setPadding(new Insets(10));
         basePane.setHgap(10);
-        basePane.setVgap(10);
-
-        // Add Student ID
-        idLabel = new Label("Student ID:");
-        studentID = new TextField("");
-        basePane.add(idLabel, 0, 0);
-        basePane.add(studentID, 1, 0);
-
-        // Add First/Last Name
-        firstLabel = new Label("First Name:");
-        firstName = new TextField("");
-        lastLabel = new Label("Last Name");
-        lastName = new TextField("");
-        basePane.add(firstLabel, 0, 1);
-        basePane.add(firstName, 1, 1);
-        basePane.add(lastLabel, 2, 1);
-        basePane.add(lastName, 3, 1);
-
-        // Add Grade and School boxes
-        gradeLabel = new Label("Grade Level:");
-        gradeLevel = new ComboBox<>(getGradeBox());
-        schoolLabel = new Label("School:");
-        school = new ComboBox<>(getSchools());
-        basePane.add(gradeLabel, 0, 2);
-        basePane.add(gradeLevel, 1, 2);
-        basePane.add(schoolLabel, 2, 2);
-        basePane.add(school, 3, 2);
-
-    }
-
-    /**
-     * Constructor for a general StudentTab. All fields are blank and editable.
-     */
-    /*
-    public StudentTab(TabPane rootNode){
-        this.rootNode = rootNode;
-        this.setText("Add Student");
-
-        // Initialize Gridpane and set Alignment
-        basePane = new GridPane();
-        basePane.setAlignment(Pos.TOP_CENTER);
-        basePane.setPadding(new Insets(10));
-        basePane.setHgap(10);
-        basePane.setVgap(10);
+        basePane.setVgap(5);
 
         // Add Student ID
         idLabel = new Label("Student ID:");
@@ -120,25 +79,17 @@ public class StudentTab extends Tab{
         basePane.add(school, 3, 2);
 
 
-        // Add Notes field
-        notesLabel = new Label("Notes: (This field can remain blank)");
-        //notes = new TextArea();
-        basePane.add(notesLabel, 0, 3);
-        //basePane.add(notes, 0, 4);
-        GridPane.setColumnSpan(notesLabel, 3);
-       /*
-        GridPane.setColumnSpan(notes, 4);
-        GridPane.setRowSpan(notes, 2);
+        // Initialize and place ListView
+        interactions = new ListView<>();
+        basePane.add(interactions, 0, 3);
+        GridPane.setColumnSpan(interactions,4);
 
-        // Add Save/Cancel Buttons
-        //saveButton = new Button("Save");
-        //cancelButton = new Button("Cancel");
-        basePane.add(saveButton, 2, 6);
-        basePane.add(cancelButton, 3, 6);
+        // Initialize and place buttons
+        saveButton = new Button("Save Student");
+        GridPane.setColumnSpan(saveButton, 2);
         GridPane.setHalignment(saveButton, HPos.RIGHT);
-        GridPane.setHalignment(cancelButton, HPos.CENTER);
+        basePane.add(saveButton, 2, 4);
 
-        // Add button handlers
         saveButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -148,7 +99,9 @@ public class StudentTab extends Tab{
                                 firstName.getText(), lastName.getText(),
                                 gradeLevel.getValue(), school.getValue());
                         displayErrorPopup(3);
-                        closeTab();
+                        changeTab(new StudentEntry(studentID.getText(),
+                                firstName.getText(), lastName.getText(),
+                                gradeLevel.getValue(), school.getValue()));
                     }else{
                         displayErrorPopup(2);
                     }
@@ -157,32 +110,19 @@ public class StudentTab extends Tab{
                 }
             }
         });
-        cancelButton.setOnAction((eh) -> closeTab());
-
-        //TODO
-        /*
-        Save Button will check to make sure the appropriate information is entered into the form.
-        Generally, we have all this information, or can look it up in powerschool, so we can just make it so it all is
-        required.
-        Once checked, it'll save to the DB, then change the current tab to the Enter Info tab.
-
-        Cancel will close the tab.
-
-
         this.setContent(basePane);
     }
-    */
-/*
-    public StudentTab(TabPane rootNode){
-        this.rootNode = rootNode;
+
+    public StudentTab(StudentEntry entry){
+        // Set Title
         this.setText("View Student");
 
-        // Initialize Gridpane and set Alignment
+        // Initialize GridPane
         basePane = new GridPane();
         basePane.setAlignment(Pos.TOP_CENTER);
         basePane.setPadding(new Insets(10));
         basePane.setHgap(10);
-        basePane.setVgap(10);
+        basePane.setVgap(5);
 
         // Add Student ID
         idLabel = new Label("Student ID:");
@@ -212,20 +152,61 @@ public class StudentTab extends Tab{
         basePane.add(schoolLabel, 2, 2);
         basePane.add(school, 3, 2);
 
-        // Set everything uneditable
-        studentID.setEditable(false);
-        firstName.setEditable(false);
-        lastName.setEditable(false);
-        gradeLevel.setEditable(false);
-        school.setEditable(false);
+        // Initialize and place ListView
+        interactions = new ListView<>();
+        basePane.add(interactions, 0, 3);
+        GridPane.setColumnSpan(interactions,4);
 
+        // Initialize and place buttons
+        addAction = new Button("Add Interaction");
+        saveButton = new Button("Save Student");
+        GridPane.setColumnSpan(addAction, 2);
+        GridPane.setColumnSpan(saveButton, 2);
+        GridPane.setHalignment(saveButton, HPos.RIGHT);
+        basePane.add(addAction, 0, 4);
+        basePane.add(saveButton, 2, 4);
+
+        saveButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    if (!containsNullValues()) {
+                        DatabaseManager.addStudent(studentID.getText(),
+                                firstName.getText(), lastName.getText(),
+                                gradeLevel.getValue(), school.getValue());
+                        displayErrorPopup(3);
+                        changeTab(new StudentEntry(studentID.getText(),
+                                firstName.getText(), lastName.getText(),
+                                gradeLevel.getValue(), school.getValue()));
+                    }else{
+                        displayErrorPopup(2);
+                    }
+                }catch(SQLException e){
+                    displayErrorPopup(1);
+                }
+            }
+        });
+
+        addAction.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Interaction i = new Interaction(entry.getId());
+                i.show();
+            }
+        });
         this.setContent(basePane);
     }
-    */
+
     private void closeTab(){
-        this.rootNode.getTabs().remove(this);
+        Main.rootNode.getTabs().remove(this);
     }
 
+    private void changeTab(StudentEntry entry){
+        Main.rootNode.getTabs().remove(this);
+        Tab viewTab = new StudentTab(entry);
+        Main.rootNode.getTabs().add(viewTab);
+        Main.rootNode.getSelectionModel().select(viewTab);
+    }
 
     private ObservableList<String> getSchools(){
         ObservableList<String> schools =
@@ -241,7 +222,6 @@ public class StudentTab extends Tab{
                         "CSA Fodrea",
                         "CSA New Tech"
                 );
-
         return schools;
     }
 

@@ -56,8 +56,19 @@ public class ViewTab extends StudentTab {
         GridPane.setRowSpan(interactions, 3);
         GridPane.setColumnSpan(description, 4);
 
+        setButtonHandlers();
+
 
 
         this.setContent(basePane);
+    }
+
+    private void setButtonHandlers(){
+        addInteraction.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+            }
+        });
     }
 }

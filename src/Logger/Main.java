@@ -27,7 +27,7 @@ public class Main extends Application {
 
     Tab searchTab;
     Tab studentTab;
-    TabPane rootNode;
+    static TabPane rootNode;
     TableView<StudentEntry> results;
     ObservableList<StudentEntry> studentEntries = FXCollections.observableArrayList();
 
@@ -148,7 +148,7 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    ViewTab tab = new ViewTab(results.getSelectionModel().getSelectedItem());
+                    StudentTab tab = new StudentTab(results.getSelectionModel().getSelectedItem());
                     rootNode.getTabs().add(tab);
                     rootNode.getSelectionModel().select(tab);
                 }catch(NullPointerException e){
