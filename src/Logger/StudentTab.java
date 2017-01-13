@@ -116,7 +116,6 @@ public class StudentTab extends Tab{
     public StudentTab(StudentEntry entry){
         // Set Title
         this.setText("View Student");
-
         // Initialize GridPane
         basePane = new GridPane();
         basePane.setAlignment(Pos.TOP_CENTER);
@@ -196,6 +195,7 @@ public class StudentTab extends Tab{
                 i.show();
             }
         });
+        updateList();
         this.setContent(basePane);
     }
 

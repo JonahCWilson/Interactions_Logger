@@ -1,5 +1,7 @@
 package Logger;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -20,8 +22,12 @@ public class Interaction extends Stage{
     private ComboBox<String> interactionTypes;
     private TextArea description;
     private Button add;
+    private DatabaseManager db;
 
     public Interaction(String sID, StudentTab parent){
+        //Initialize DB
+        db = new DatabaseManager();
+
         // Initialize GridPane
         GridPane basePane = new GridPane();
         basePane.setAlignment(Pos.TOP_CENTER);
@@ -31,7 +37,7 @@ public class Interaction extends Stage{
 
         // Initialize Interaction Choices
         actionLabel = new Label("Action Type:");
-        interactionTypes = new ComboBox<String>(); //getTypes();
+        interactionTypes = new ComboBox<String>(getTypes());
         basePane.add(actionLabel, 0, 0);
         basePane.add(interactionTypes, 1, 0);
 
@@ -44,18 +50,38 @@ public class Interaction extends Stage{
         basePane.add(add, 1, 2);
         GridPane.setHalignment(add, HPos.RIGHT);
 
-        add.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                DatabaseManager.addInteraction(sID, description.getText());
-                parent.updateList();
-
-            }
-        });
+        //Set Finish button handler
+        add.setOnAction((eh) -> setAddAction(sID, parent));
 
         scene = new Scene(basePane, 400, 250);
         this.setScene(scene);
 
 
+    }
+
+    private void setAddAction(String ID, StudentTab parent){
+        if(!(description.getText().equals("") || interactionTypes.getValue() == null)) {
+            db.addInteraction(ID, description.getText());
+            parent.updateList();
+            this.close();
+        }
+    }
+
+    private ObservableList getTypes(){
+        ObservableList<String> output = FXCollections.observableArrayList();
+        output.addAll(
+            "School Contact - Phone/Email",
+            "Parent Teacher Conference",
+            "Other Meeting",
+            "Special Education Conference",
+            "Translation",
+            "Parents at school",
+            "Call from parents",
+            "Call to parents",
+            "Parent text",
+            "Parent email",
+            "Home visit"
+        );
+        return output;
     }
 }

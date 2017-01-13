@@ -10,6 +10,10 @@ public class DatabaseManager
 {
     final static String DB_URL = "jdbc:sqlite:main.db";
 
+    public DatabaseManager(){
+
+    }
+
     public static void createDatabase()
     {
         Connection c = null;
@@ -109,7 +113,7 @@ public class DatabaseManager
 
     }
 
-    public static void addInteraction(String id, String description){
+    public void addInteraction(String id, String description){
         Connection conn;
         Statement stmt;
         try{
@@ -118,7 +122,6 @@ public class DatabaseManager
             String sql = "INSERT INTO INTERACTIONS VALUES " +
                     "('" + id + "', date(), 2, '" + description + "')";
             stmt.executeUpdate(sql);
-
             stmt.close();
             conn.close();
         }catch(SQLException se){
