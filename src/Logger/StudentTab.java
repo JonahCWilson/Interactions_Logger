@@ -37,6 +37,7 @@ public class StudentTab extends Tab{
     public GridPane basePane;
 
     private Button saveButton, cancelButton, addAction;
+    private DatabaseManager db = new DatabaseManager();
 
     /**
      * Constructor for General StudentTab.  All fields are blank and editable, save Interactions
@@ -262,7 +263,7 @@ public class StudentTab extends Tab{
     }
 
     public void updateList(){
-        ObservableList<String> actions = DatabaseManager.getInteractions(this.studentID.getText());
+        ObservableList<String> actions = db.getInteractions(this.studentID.getText());
         interactions.setItems(actions);
     }
 

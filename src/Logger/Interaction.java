@@ -61,7 +61,7 @@ public class Interaction extends Stage{
 
     private void setAddAction(String ID, StudentTab parent){
         if(!(description.getText().equals("") || interactionTypes.getValue() == null)) {
-            db.addInteraction(ID, description.getText());
+            db.addInteraction(ID, interactionTypes.getSelectionModel().getSelectedIndex()+1, description.getText());
             parent.updateList();
             this.close();
         }

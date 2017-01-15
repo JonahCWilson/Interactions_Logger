@@ -5,6 +5,8 @@ import javafx.collections.ObservableList;
 import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DatabaseManager
 {
@@ -26,11 +28,11 @@ public class DatabaseManager
             // Create Students Table
             stmt = c.createStatement();
             String sql = "CREATE TABLE IF NOT EXISTS STUDENTS " +
-                         "(ID TEXT PRIMARY KEY  NOT NULL," +
-                         "FIRST_NAME    TEXT   NOT NULL, " +
-                         "LAST_NAME     TEXT   NOT NULL, " +
-                         "GRADE     INTEGER    NOT NULL, " +
-                         "SCHOOL    TEXT       NOT NULL) ";
+                    "(ID TEXT PRIMARY KEY  NOT NULL," +
+                    "FIRST_NAME    TEXT   NOT NULL, " +
+                    "LAST_NAME     TEXT   NOT NULL, " +
+                    "GRADE     INTEGER    NOT NULL, " +
+                    "SCHOOL    TEXT       NOT NULL) ";
             stmt.executeUpdate(sql);
 
             sql = "CREATE TABLE IF NOT EXISTS NOTES " +
@@ -40,19 +42,21 @@ public class DatabaseManager
 
             sql = "CREATE TABLE IF NOT EXISTS INTERACTIONS " +
                     "(ID TEXT NOT NULL," +
-                    "DATE TEXT, TYPE INT, DESCRIPTION TEXT)";
+                    "DATE TEXT, TYPE INT, INFO TEXT)";
             stmt.executeUpdate(sql);
 
             sql = "CREATE TABLE IF NOT EXISTS TYPES " +
                     "(ID INT PRIMARY KEY NOT NULL, " +
-                    "DESCRIPTION TEXT)";
+                    "LABEL TEXT)";
             stmt.executeUpdate(sql);
+            createTypes();
             stmt.close();
             c.close();
 
             // Create Student
             //stmt = "CREATE TABLE";
-
+        }catch(SQLException se){
+            se.printStackTrace();
         }catch(Exception e){
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -113,23 +117,24 @@ public class DatabaseManager
 
     }
 
-    public void addInteraction(String id, String description){
+    public void addInteraction(String id, int type, String description){
         Connection conn;
         Statement stmt;
         try{
             conn = DriverManager.getConnection(DB_URL);
             stmt = conn.createStatement();
             String sql = "INSERT INTO INTERACTIONS VALUES " +
-                    "('" + id + "', date(), 2, '" + description + "')";
+                    "('" + id + "', date()," + type + ",'" + description.replace("'", "`") + "')";
             stmt.executeUpdate(sql);
             stmt.close();
             conn.close();
         }catch(SQLException se){
-
+            se.printStackTrace();
         }
     }
 
-    public static ObservableList<String> getInteractions(String id){
+
+    public ObservableList<String> getInteractions(String id){
         ObservableList<String> output = FXCollections.observableArrayList();
         Connection conn;
         Statement stmt;
@@ -137,19 +142,74 @@ public class DatabaseManager
         try{
             conn = DriverManager.getConnection(DB_URL);
             stmt = conn.createStatement();
-            String sql = "SELECT * FROM INTERACTIONS WHERE ID LIKE '" + id + "'";
+            String sql = "SELECT DATE, LABEL, INFO FROM INTERACTIONS JOIN TYPES ON " +
+                    "INTERACTIONS.TYPE = TYPES.ID WHERE INTERACTIONS.ID LIKE " + id + " ORDER BY DATE DESC";
             rs = stmt.executeQuery(sql);
             while(rs.next()) {
-                output.add(rs.getString("DATE") + "-" + rs.getString("TYPE") +
-                        "-" + rs.getString("DESCRIPTION"));
+                output.add(rs.getString("DATE") + "\t" + rs.getString("LABEL") +
+                      "\n" + wrapper(rs.getString("INFO")));
             }
             rs.close();
             stmt.close();
             conn.close();
         }catch(SQLException se){
-
+            se.printStackTrace();
         }
         return output;
 
+    }
+
+    /*
+    private String getTypeName(int n){
+        Connection conn;
+        Statement stmt;
+        try{
+            conn = DriverManager.getConnection(DB_URL);
+            stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM TYPES WHERE ID LIKE " + n);
+            if(rs.next()) {
+                System.out.println("meow");
+                System.out.println(rs.getString("DESCRIPTION"));
+                return rs.getString("DESCRIPTION");
+            }
+        }catch(SQLException se){
+            se.printStackTrace();
+        }
+        return "";
+    }
+    */
+    private static void createTypes(){
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            Statement stmt = conn.createStatement())
+        {
+            List<String> types = Arrays.asList(
+                "School Contact - Phone/Email",
+                "Parent Teacher Conference",
+                "Other Meeting",
+                "Special Education Conference",
+                "Translation",
+                "Parents at school",
+                "Call from parents",
+                "Call to parents",
+                "Parent text",
+                "Parent email",
+                "Home visit"
+        );
+            for(int i = 0; i < 11; i++){
+                stmt.executeUpdate("INSERT OR IGNORE INTO TYPES VALUES(" + (i+1) + ", '" + types.get(i) + "')");
+            }
+        }catch(SQLException se){
+            se.printStackTrace();
+        }
+    }
+
+    private String wrapper(String input){
+        String output = "";
+        for(int i = 0; i < input.length(); i++){
+            if(i % 70 == 0)
+                output += "\n";
+            output += input.charAt(i);
+        }
+        return output;
     }
 }
