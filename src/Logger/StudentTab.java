@@ -96,7 +96,7 @@ public class StudentTab extends Tab{
             public void handle(ActionEvent event) {
                 try {
                     if (!containsNullValues()) {
-                        DatabaseManager.addStudent(studentID.getText(),
+                        db.addStudent(studentID.getText(),
                                 firstName.getText(), lastName.getText(),
                                 gradeLevel.getValue(), school.getValue());
                         displayErrorPopup(3);
@@ -127,6 +127,7 @@ public class StudentTab extends Tab{
         // Add Student ID
         idLabel = new Label("Student ID:");
         studentID = new TextField(entry.getId());
+        studentID.setEditable(false);
         basePane.add(idLabel, 0, 0);
         basePane.add(studentID, 1, 0);
 
@@ -172,13 +173,10 @@ public class StudentTab extends Tab{
             public void handle(ActionEvent event) {
                 try {
                     if (!containsNullValues()) {
-                        DatabaseManager.addStudent(studentID.getText(),
+                        db.updateStudent(studentID.getText(),
                                 firstName.getText(), lastName.getText(),
                                 gradeLevel.getValue(), school.getValue());
-                        displayErrorPopup(3);
-                        changeTab(new StudentEntry(studentID.getText(),
-                                firstName.getText(), lastName.getText(),
-                                gradeLevel.getValue(), school.getValue()));
+                        closeTab();
                     }else{
                         displayErrorPopup(2);
                     }

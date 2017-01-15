@@ -1,6 +1,7 @@
 package Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.text.Text;
 
 import javax.swing.plaf.nimbus.State;
 import java.sql.*;
@@ -146,8 +147,8 @@ public class DatabaseManager
                     "INTERACTIONS.TYPE = TYPES.ID WHERE INTERACTIONS.ID LIKE " + id + " ORDER BY DATE DESC";
             rs = stmt.executeQuery(sql);
             while(rs.next()) {
-                output.add(rs.getString("DATE") + "\t" + rs.getString("LABEL") +
-                      "\n" + wrapper(rs.getString("INFO")));
+                output.add(rs.getString("DATE") + "\t\t\t\t\t\t\t" + rs.getString("LABEL") +
+                      dashedLine() + wrapper(rs.getString("INFO")));
             }
             rs.close();
             stmt.close();
@@ -203,12 +204,37 @@ public class DatabaseManager
         }
     }
 
+    public static void updateStudent(String id, String firstName, String lastName, int grade, String school)
+            throws SQLException{
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL);
+            Statement stmt = conn.createStatement();
+
+            String sql = "UPDATE STUDENTS " +
+                    "SET FIRST_NAME = " + "'" + firstName + "'" + ", LAST_NAME = " + "'" + lastName + "'" +
+                    ", GRADE = " + grade + ", SCHOOL = " + "'" + school + "'" + " WHERE ID LIKE " + "'" + id + "'";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            conn.close();
+        }catch(SQLException e){
+            throw e;
+        }
+    }
+
     private String wrapper(String input){
         String output = "";
         for(int i = 0; i < input.length(); i++){
             if(i % 70 == 0)
                 output += "\n";
             output += input.charAt(i);
+        }
+        return output;
+    }
+
+    private String dashedLine(){
+        String output = "\n";
+        for(int i = 0; i<105; i++){
+            output += "-";
         }
         return output;
     }

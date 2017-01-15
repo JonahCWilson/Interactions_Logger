@@ -38,6 +38,7 @@ public class Main extends Application {
         rootNode = new TabPane(searchTab);
         Scene scene = new Scene(rootNode, 600, 400);
         primaryStage.setScene(scene);
+        rootNode.getTabs().add(new MetricsTab());
 
         primaryStage.show();
 
