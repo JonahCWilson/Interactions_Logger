@@ -36,11 +36,6 @@ public class DatabaseManager
                     "SCHOOL    TEXT       NOT NULL) ";
             stmt.executeUpdate(sql);
 
-            sql = "CREATE TABLE IF NOT EXISTS NOTES " +
-                    "(ID TEXT PRIMARY KEY NOT NULL, " +
-                    "DATA TEXT)";
-            stmt.executeUpdate(sql);
-
             sql = "CREATE TABLE IF NOT EXISTS INTERACTIONS " +
                     "(ID TEXT NOT NULL," +
                     "DATE TEXT, TYPE INT, INFO TEXT)";
@@ -125,7 +120,7 @@ public class DatabaseManager
             conn = DriverManager.getConnection(DB_URL);
             stmt = conn.createStatement();
             String sql = "INSERT INTO INTERACTIONS VALUES " +
-                    "('" + id + "', date()," + type + ",'" + description.replace("'", "`") + "')";
+                    "('" + id + "', datetime()," + type + ",'" + description.replace("'", "`") + "')";
             stmt.executeUpdate(sql);
             stmt.close();
             conn.close();
@@ -147,8 +142,8 @@ public class DatabaseManager
                     "INTERACTIONS.TYPE = TYPES.ID WHERE INTERACTIONS.ID LIKE " + id + " ORDER BY DATE DESC";
             rs = stmt.executeQuery(sql);
             while(rs.next()) {
-                output.add(rs.getString("DATE") + "\t\t\t\t\t\t\t" + rs.getString("LABEL") +
-                      dashedLine() + wrapper(rs.getString("INFO")));
+                output.add(rs.getString("DATE").substring(0, 10) + "\t\t\t\t\t\t\t" + rs.getString("LABEL") +
+                      dashedLine() + wrapper(rs.getString("INFO")) + "\n");
             }
             rs.close();
             stmt.close();

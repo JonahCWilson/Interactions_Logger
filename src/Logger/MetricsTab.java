@@ -38,6 +38,7 @@ public class MetricsTab extends Tab {
             types[i-1].setAlignment(Pos.CENTER_LEFT);
         }
 
+        this.setClosable(false);
 
     }
 
