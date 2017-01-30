@@ -1,13 +1,21 @@
 package Logger;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableArray;
+import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 
+import javax.jnlp.IntegrationService;
+import javax.print.DocFlavor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,10 +25,11 @@ import java.util.List;
 public class MetricsTab extends Tab {
 
     Button refresh;
+    FlowPane top;
     TableView metrics;
     GridPane basePane;
-    Label types[];
-    DatabaseManager db;
+    ComboBox months, years;
+    DatabaseManager db = new DatabaseManager();
 
     public MetricsTab(){
         //Initialize Tab Text
@@ -28,38 +37,74 @@ public class MetricsTab extends Tab {
 
         //Initialize GridPane
         basePane = new GridPane();
-        basePane.setPadding(new Insets(10));
+        basePane.setPadding(new Insets(15));
+        basePane.setHgap(10);
+        basePane.setVgap(5);
         this.setContent(basePane);
 
-        //Set Types Labels
-        types = getTypes();
-        for(int i = 1; i <=11; i++){
-            basePane.add(types[i-1], 0, i);
-            types[i-1].setAlignment(Pos.CENTER_LEFT);
-        }
+        //Initialize Comboboxes
+        months = new ComboBox();
+        months.setItems(FXCollections.observableArrayList(new ArrayList<Integer>(){{
+            for(int i = 1; i < 13; i++){
+                this.add(i);
+            }
+                }}));
+        years = new ComboBox();
+        years.setItems(FXCollections.observableArrayList(new ArrayList<Integer>(){{
+            for(int i = 2017; i < 2025; i++){
+                this.add(i);
+            }
+        }}));
+        top = new FlowPane();
+        refresh = new Button("Refresh");
+        refresh.setAlignment(Pos.TOP_RIGHT);
+        top.getChildren().addAll(months, years, refresh);
+        top.setHgap(10);
+        basePane.add(top, 0, 0);
+
+
+        //Initialize tableview
+        metrics = populate();
+        basePane.add(metrics, 0, 1);
+
+
 
         this.setClosable(false);
+       this.setOnSelectionChanged((eh)->refreshSelection());
 
     }
 
-    private Label[] getTypes(){
-        List<String> types = Arrays.asList(
-                "School Contact - Phone/Email",
-                "Parent Teacher Conference",
-                "Other Meeting",
-                "Special Education Conference",
-                "Translation",
-                "Parents at school",
-                "Call from parents",
-                "Call to parents",
-                "Parent text",
-                "Parent email",
-                "Home visit"
-        );
-        Label output[] = new Label[11];
-        for(int i = 0; i < 11; i++){
-            output[i] = new Label(types.get(i));
+    private void refreshSelection(){
+        ObservableList input = db.testing();
+        metrics.setItems(input);
+        for(int i = 0; i < metrics.getColumns().size()+1; i++){
+            TableColumn<String, Integer> tc = new TableColumn<>();
+            tc.setCellValueFactory(new PropertyValueFactory<String, Integer>);
         }
-        return output;
+
     }
+
+
+    private TableView populate(){
+        TableView tableView = new TableView();
+
+        TableColumn southside = new TableColumn("Southside");
+        TableColumn cc = new TableColumn("Clifty Creek");
+        TableColumn parkside = new TableColumn("Parkside");
+        TableColumn busybees = new TableColumn("Busy Bees");
+        TableColumn taylorsville = new TableColumn("Taylorsville");
+        TableColumn northside = new TableColumn("Northside");
+        TableColumn central = new TableColumn("Central");
+        TableColumn east = new TableColumn("East");
+        TableColumn fodrea = new TableColumn("Fodrea");
+        TableColumn newTech = new TableColumn("New Tech");
+
+
+        tableView.getColumns().addAll(southside, cc, parkside, busybees,
+                taylorsville, northside, central, east, fodrea, newTech);
+        //tableView.setItems(db.testing());
+
+        return tableView;
+    }
+
 }

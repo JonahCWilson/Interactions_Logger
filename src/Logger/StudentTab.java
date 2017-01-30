@@ -212,16 +212,23 @@ public class StudentTab extends Tab{
     private ObservableList<String> getSchools(){
         ObservableList<String> schools =
                 FXCollections.observableArrayList(
-                        "Southside",
                         "Clifty Creek",
+                        "Fodrea",
+                        "Lincoln",
+                        "Mt. Healthy",
                         "Parkside",
-                        "Busy Bees",
+                        "Richards",
+                        "Rockcreek",
+                        "Schmitt",
+                        "Smith",
+                        "Southside",
                         "Taylorsville",
-                        "Northside",
+                        "Busy Bees",
                         "Central",
-                        "East High School",
-                        "CSA Fodrea",
-                        "CSA New Tech"
+                        "North",
+                        "East",
+                        "New Tech",
+                        "McDowell"
                 );
         return schools;
     }

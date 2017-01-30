@@ -89,7 +89,7 @@ public class DatabaseManager
             stmt = conn.createStatement();
             String sql = "SELECT * FROM STUDENTS " +
                     "WHERE LOWER(LAST_NAME) LIKE '" + query +
-                    "' OR LOWER(ID) LIKE '" + query + "'" +
+                    "' OR LOWER(STUDENTS.ID) LIKE '" + query + "'" +
                     " OR SCHOOL LIKE '" + query + "'";
             rs = stmt.executeQuery(sql);
             while(rs.next()){
@@ -155,25 +155,6 @@ public class DatabaseManager
 
     }
 
-    /*
-    private String getTypeName(int n){
-        Connection conn;
-        Statement stmt;
-        try{
-            conn = DriverManager.getConnection(DB_URL);
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM TYPES WHERE ID LIKE " + n);
-            if(rs.next()) {
-                System.out.println("meow");
-                System.out.println(rs.getString("DESCRIPTION"));
-                return rs.getString("DESCRIPTION");
-            }
-        }catch(SQLException se){
-            se.printStackTrace();
-        }
-        return "";
-    }
-    */
     private static void createTypes(){
         try(Connection conn = DriverManager.getConnection(DB_URL);
             Statement stmt = conn.createStatement())
@@ -193,6 +174,55 @@ public class DatabaseManager
         );
             for(int i = 0; i < 11; i++){
                 stmt.executeUpdate("INSERT OR IGNORE INTO TYPES VALUES(" + (i+1) + ", '" + types.get(i) + "')");
+            }
+        }catch(SQLException se){
+            se.printStackTrace();
+        }
+    }
+
+    public ObservableList getAllSchools(){
+        ObservableList<String> output = FXCollections.observableArrayList();
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            Statement stmt = conn.createStatement()){
+            String sql = "SELECT NAME FROM SCHOOLS";
+            ResultSet rs = stmt.executeQuery(sql);
+            while(rs.next()){
+                output.add(rs.getString(0));
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        }catch(SQLException se){
+                se.printStackTrace();
+        }
+        return output;
+    }
+
+    private static void createSchools(){
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            Statement stmt = conn.createStatement())
+        {
+            List<String> schools = Arrays.asList(
+                    "Clifty Creek",
+                    "Fodrea",
+                    "Lincoln",
+                    "Mt. Healthy",
+                    "Parkside",
+                    "Richards",
+                    "Rockcreek",
+                    "Schmitt",
+                    "Smith",
+                    "Southside",
+                    "Taylorsville",
+                    "Busy Bees",
+                    "Central",
+                    "North",
+                    "East",
+                    "New Tech",
+                    "McDowell"
+            );
+            for(int i = 0; i < 11; i++){
+                stmt.executeUpdate("INSERT OR IGNORE INTO SCHOOLS VALUES(" + (i+1) + ", '" + schools.get(i) + "')");
             }
         }catch(SQLException se){
             se.printStackTrace();
@@ -233,4 +263,49 @@ public class DatabaseManager
         }
         return output;
     }
+
+    public ObservableList testing(){
+        ObservableList output = FXCollections.observableArrayList();
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            Statement stmt = conn.createStatement()){
+            String sql = "SELECT " +
+                     "COUNT(CASE WHEN SCHOOL = 'Clifty Creek' THEN 1 END)," +
+                    "COUNT(CASE WHEN SCHOOL = 'Fodrea' THEN 1 END), " +
+                    "COUNT(CASE WHEN SCHOOL = 'Busy Bees' THEN 1 END) " +
+                    "FROM INTERACTIONS JOIN STUDENTS " +
+                    "ON INTERACTIONS.ID = STUDENTS.ID " +
+                    "GROUP BY SCHOOL " +
+                    "ORDER BY TYPE";
+            ResultSet rs = stmt.executeQuery(sql);
+            //System.out.println(rs.next());
+            while(rs.next()){
+                for(int i = 0; i < rs.getMetaData().getColumnCount(); i++){
+                    output.add(rs.getInt(i+1));
+                }
+            }
+        }catch(Exception se){
+                se.printStackTrace();
+        }
+        return output;
+    }
 }
+
+/**
+ * "Clifty Creek",
+ "Fodrea",
+ "Lincoln",
+ "Mt. Healthy",
+ "Parkside",
+ "Richards",
+ "Rockcreek",
+ "Schmitt",
+ "Smith",
+ "Southside",
+ "Taylorsville",
+ "Busy Bees",
+ "Central",
+ "North",
+ "East",
+ "New Tech",
+ "McDowell"
+ */
